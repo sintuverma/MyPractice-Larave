@@ -1,0 +1,132 @@
+Laravel notes and command
+# start laravel server 
+1) php artisan serve
+
+# make a controller
+1) php artisan make:controller ControllerName->it will create index function only.
+2) php artisan make:controller ControolerName --resourse-> it will be create many method in controller class like store,create,update.
+3) controller path app->http->controllers->controllers.php
+
+# make a component reusable and should be unique name and f is denoted folder component as a example of file you can give any name of the component
+1)php artisan make component file path->appf->viewf->componentf->component.php it have constructur define variable who receive any example.blade.php
+2) second file create component.blade.php file path->resourcesf->viewsf->component.blade.php
+
+# make a table using laravel in local system-> go env. file and set the file lide db name, password=empty, username=root,host= localhost, database=db_name 
+
+# make a table using many as step follow below step #
+1)type command-> php artisan config:Cache it will be created all cache of laravel 
+2)php artisan make: migration create_tableName_table
+3) After this command it will be create migration file in path->databasef->migrationf->table file with this field :-
+		$table->id(); it will be the primary key of the table
+		$table->time_stamps() it is created two columns created_at, updated_at
+we can add more field and modify it
+
+		$table->id('userid')
+		$table->string('username'100)->nullable() % string is varchar type and 100 is length of varchar and it can be nullable %
+		$table->boolean('status')->default(1) % boolean is tinyint you can read the documentation in laravel
+
+4)when your field is then fire % php artisan migrate %
+5)We can use delete recent table use % php artisan migrate:rollback % if we think that any columns wrong entered and left.
+6)We can refresh the table to use refesh all tables % php artisan migrate:refresh %
+7)If you want insert new columns in tables php artisan make:migration add_columns_to_customers_table 
+8) up method create the table and down method delete the table if created already then after creat like this and new migration created & $table->string('country',100)->nullable()->after('address'); &
+
+# Making Model now we can create a model in laravel use % php artisan make:model % Tablename(it should be first character Capital) 
+1) we should change in that file 
+like protected $table= ('Tablename');, protected PrimaryKey = ('primary key id') then we can use fetch data of that table &  $customer_fdata= Customers:: all();
+
+2) We can make migration and model in together with these command % php artisan make:model Product --migration %
+
+#Make a crud operation in laravel
+1) Make a registration form like customer and create a customer cuntroller and a customer model and customer model ki class ko customer controller me use kar lo.
+2) Customer model me sirf do protected variable hai protected $table= 'customers';protected $primaryKey ='cid'; as it protected variable hone chahiye bas 'customer table name ki jagah doosri table jaisie ki 'product table' and primary key bhi honi jaruri hai us table ki 'cid' primary key hai waise doosre table ki 'pid' jo bhi priname ki primary key ho.
+
+3)  Controller me aap alag alag controller create karenge jaise apko need ho/ 
+	a)jaise form open karna hai to uska url example & Route::get('/customer/create', [App\Http\Controllers\CustomerController::class, 'create'])->name('customer.create');& and is controller class ko route me use karna hoga tabhi aap iske controller ko use kar paye 'create' ek function hai us route ka neme method me naya route name de rahe hai.
+	
+	b) Form me data fill karne ke baad us form ke action me submit form ka url bhejte hai  example & Route::post('/register_submit', [App\Http\Controllers\CustomerController::class, 'store']);& is method me request naam ki class store(Request $request) receive karte hai alag alag variable me example
+$customer = new Customers customer model ka object-= $customer->email= $request['email']; $customer->email me email jaisa customer table me column name hai wo. dena hai aur $request['email'] jo bhi aapne form field me input ke name attiribute me jo  name diya ho. rule ye kehta hai table ki column name and input attribute name and id name same rakhne chahiye. 
+	c) Jo bhi forms fied receive ho jaye use customer->save() ki help se database ki table me save karate hai.
+
+	d)show karne ke liye ek new page aur customer controller me naya function jaise view() bana kar isse  & $customer_fdata= Customers:: all();& fir customer table data kp compact method ke dwara $data me assign kar lete hai compact apke variable ko assciative array me change kar deta hai & $data = compact('customer_fdata');& uske baad jo data variable hai use customershow me ->with($data)  ke sath bhej dete hai aur for each ki help se show kar lete hai return view('customershow')->with($data);
+		
+	e) delete me bhi delete ka route and function bana kar and uski id bhi bhejni hogi jiska data table se delete karna hai aur controller me delete method bana kar us id ko receive karna hai example & Route::get('/customer/delete/{cid}', [App\Http\Controllers\CustomerController::class, 'delete_customers'])->name('customer.delete');$customer = Customers:: find($cid); & if(!is_null($customer)) {$customer->delete(); } &
+
+	f) Edit karne ke liye pehle edit ka route banao example & Route::get('/customer/edit/{cid}', [App\Http\Controllers\CustomerController::class, 'edit'])->name('customer.edit'); & and controller me edit naam ka function bhi hona chahiye jo cid ko receive kare jiski madad se update form usi customer ka data ki value &  $customer = Customers::find($id);  $data = compact('customer','url','title');  return view('customer_update')->with($data); & show ho jis par usne edit click kiya ho  
+
+	g) Update karne ke liye update form me submit karo jo bhi aap change karnamchahte ho ya change karne ke baad submit par click karo update form ke action me update route example & Route::post('/customer/update/{cid}', [App\Http\Controllers\CustomerController::class, 'update'])->name('customer.update'); & jisme update naam ka function hai aur wo  as example & public function update($cid, Request $request){$customer = Customers::find($cid); $customer->email= $request['email'];$customer->save(); & save method bhi update me hi data table me update karega kyoki hum log purane customers ke object ka hi use kar rahe hai agar customers ke data me kuch update karna hai to insert ke samay customer ka object requst name field tha wahi use karenge
+
+# Helper in laravel 
+1)  Helper basically isliye hote hai jo function,kayi tara ke contribution, koi task  hume project me baar baar jarurat hoti hai to hum unhe pehle se delclare kar lete hai aur jaha jarurat hoti hai call kar lete hai.
+2) Helper ko app folder me kisi bhi naame se banate hai main helper naam se bana raha hoon. kuch log iska naam custom helper, kuch log isk naam autoload helper.
+3) Ye apko har page par dikhega iske liye apko kuch step follow karne honge.
+	a) open->composoer.json->autoload:{"files":["app/helper.php"],} then after fire this command composer dump-autoload it will be reset the all files in your  	laravel project this command will take 5 to 10 minutes between. this will be auto load in every page. this method define in helper & function p($data) {echo 	"<pre>"print_r($data)"echo</pre"} we call it simple p($request->all());
+
+# Access and Mutator in Laravel
+ 1)A mutator transforms an Eloquent attribute value when it is set.
+ 2) Define a det{Attribute} Attribute method on your model where {Attribute} is the "study" cased name of the column you wish to access.
+
+
+# SoftDeletes use for send data in trash which can restore again.
+1) Go in customers models file use % use Illuminate\Database\Eloquent\SoftDeletes; % and use (invoke) it in customer class % use SoftDeletes; // this is not a class this is a trait. % and fire this command %  php artisan make:migration add_deleted_at_to_customers_table  %
+
+2) Then after success command go customer add_deleted_at_to_customers migration file and use this object % $table->softDeletes(); % and use down() % $table->dropSoftDeletes(); % if already exist.
+3) Then we delete a record from show records it would be deleted from there but it not will not delete your database table and it enter the date time in deleted_at column who created by softDelete function.
+
+#m=Make  your command in larave:-
+1)php artisan make:command GetDBName(this command making for know the db name after run)
+2)Go appf->httpf->consolef->commandsF->GetDBName.php(f mean folder)
+3)Then Go appf\kernel.php->protected $commands=[path as like commands\GetDBName::class]
+4)Then we will use importing this file on GETDBName.php [use Illuminate\Support\Facades\DB;]
+5)Then go in handle method and write this % $dbName = DB::connection()->getDataBaseName(); % $this->info("The current Data base name is $dbName"); %
+6)Then Run command you were make for know database it will show you current database name.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clifford: '#da373d',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1 class="text-3xl font-bold underline **text-clifford**">
+    Hello world!
+  </h1>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
